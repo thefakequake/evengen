@@ -112,8 +112,9 @@ func ParseFile(text string) string {
 					continue
 				}
 
+
 				currentTable.Fields = append(currentTable.Fields, Field{RemoveHyperlinks(row[0]), RemoveHyperlinks(row[1]), RemoveHyperlinks(row[2]), optional})
-			} else if strings.HasPrefix(cur, ">") || len(currentTable.Fields) == 0 {
+			} else if len(currentTable.Fields) == 0 {
 				continue
 			} else {
 				if len(currentTable.Fields) > 0 {
@@ -136,7 +137,7 @@ func ParseFile(text string) string {
 					currentTable.URL = url + "#" + strcase.ToKebab(lastHeader+title)
 					
 					t := title
-					if !ContainsWord([]string{"Metadata", "Info"}, p) {
+					if !strings.HasPrefix(t, "Metadata") && !strings.HasPrefix(t, "Info") {
 						t = RemoveSuffix(t, p)
 					}
 					currentTable.Title = t
@@ -263,7 +264,7 @@ func ContainsWord(arr []string, word string) bool {
 
 func SplitTableRow(row string) []string {
 	var split []string
-	for _, t := range strings.Split(strings.Trim(row, "| "), " | ") {
+	for _, t := range strings.Split(strings.Trim(row, "| "), "|") {
 		split = append(split, strings.TrimSpace(t))
 	}
 	return split
@@ -282,32 +283,42 @@ func ConvertWord(word string) string {
 		return ""
 	}
 
+	var comma bool
+	if strings.HasSuffix(word, ",") {
+		comma = true
+		word = strings.TrimRight(word, ",")
+	}
+
 	switch strings.ToLower(word) {
 	case "id":
-		return "ID"
+		word = "ID"
 	case "ids":
-		return "IDs"
+		word = "IDs"
 	case "url":
-		return "URL"
+		word = "URL"
 	case "urls":
-		return "URLs"
+		word = "URLs"
 	case "mfa":
-		return "MFA"
+		word = "MFA"
 	case "rpc":
-		return "RPC"
+		word = "RPC"
 	case "http":
-		return "HTTP"
+		word = "HTTP"
 	case "https":
-		return "HTTPS"
+		word = "HTTPS"
 	case "http(s)":
-		return "HTTP(S)"
+		word = "HTTP(S)"
 	case "afk":
-		return "AFK"
+		word = "AFK"
 	case "nsfw":
-		return "NSFW"
-	default:
-		return word
+		word = "NSFW"
 	}
+
+	if comma {
+		word += ","
+	}
+
+	return word
 }
 
 func ConvertName(name string) string {
