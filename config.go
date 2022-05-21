@@ -45,7 +45,7 @@ func GetConfig() (*Config, error) {
 			return &c, err
 		}
 
-		err = os.WriteFile(configFile, dat, 0)
+		err = os.WriteFile(configFile, dat, 0644)
 		if err != nil {
 			return &c, err
 		}
